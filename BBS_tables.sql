@@ -6,29 +6,11 @@ CREATE SCHEMA IF NOT EXISTS `bbs` DEFAULT CHARACTER SET utf8 ;
 USE `bbs` ;
 
 -- -----------------------------------------------------
--- Table `bbs`.`branch`
+-- Table `bbs`.`branchs`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `bbs`.`branch` (
+CREATE  TABLE IF NOT EXISTS `bbs`.`branchs` (
   `id` INT(11) NOT NULL AUTO_INCREMENT ,
-  `branch_number` INT(11) NOT NULL ,
   `name` VARCHAR(45) NOT NULL ,
-  `insert_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ,
-  `update_date` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00' ,
-  PRIMARY KEY (`id`) ,
-  UNIQUE INDEX `branch_number_UNIQUE` (`branch_number` ASC) )
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-
--- -----------------------------------------------------
--- Table `bbs`.`comment`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `bbs`.`comment` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT ,
-  `thread_id` INT(11) NOT NULL ,
-  `text` VARCHAR(500) NOT NULL ,
-  `user_id` INT(11) NOT NULL ,
-  `user_name` VARCHAR(45) NOT NULL ,
   `insert_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ,
   `update_date` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   PRIMARY KEY (`id`) )
@@ -37,16 +19,29 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `bbs`.`position`
+-- Table `bbs`.`comments`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `bbs`.`position` (
+CREATE  TABLE IF NOT EXISTS `bbs`.`comments` (
   `id` INT(11) NOT NULL AUTO_INCREMENT ,
-  `position_number` INT(11) NOT NULL ,
+  `threads_id` INT(11) NOT NULL ,
+  `text` VARCHAR(500) NOT NULL ,
+  `users_id` INT(11) NOT NULL ,
+  `insert_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ,
+  `update_date` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00' ,
+  PRIMARY KEY (`id`) )
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `bbs`.`positions`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `bbs`.`positions` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT ,
   `name` VARCHAR(45) NULL DEFAULT NULL ,
   `insert_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ,
   `update_date` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00' ,
-  PRIMARY KEY (`id`) ,
-  UNIQUE INDEX `position_number_UNIQUE` (`position_number` ASC) )
+  PRIMARY KEY (`id`) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
@@ -58,9 +53,8 @@ CREATE  TABLE IF NOT EXISTS `bbs`.`threads` (
   `id` INT(11) NOT NULL AUTO_INCREMENT ,
   `title` VARCHAR(50) NOT NULL ,
   `text` VARCHAR(1000) NOT NULL ,
-  `category` VARCHAR(45) NOT NULL ,
-  `user_id` INT(11) NOT NULL ,
-  `user_name` VARCHAR(45) NOT NULL ,
+  `category` VARCHAR(10) NOT NULL ,
+  `users_id` INT(11) NOT NULL ,
   `insert_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ,
   `update_date` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   PRIMARY KEY (`id`) )
@@ -72,17 +66,17 @@ DEFAULT CHARACTER SET = utf8;
 -- Table `bbs`.`users`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `bbs`.`users` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT ,
+  `id` INT NOT NULL AUTO_INCREMENT ,
   `account` VARCHAR(20) NOT NULL ,
   `password` VARCHAR(255) NOT NULL ,
   `name` VARCHAR(45) NULL DEFAULT NULL ,
-  `branch` INT(11) NULL DEFAULT NULL ,
-  `position` INT(11) NULL DEFAULT NULL ,
-  `freeze` ENUM('true','false') NOT NULL DEFAULT 'false' ,
+  `branchs_id` INT(11) NULL DEFAULT NULL ,
+  `positions_id` INT(11) NULL DEFAULT NULL ,
+  `freeze` TINYINT(1) NOT NULL DEFAULT '0' ,
   `insert_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ,
   `update_date` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00' ,
   PRIMARY KEY (`id`) ,
-  UNIQUE INDEX `user_id_UNIQUE` (`account` ASC) )
+  UNIQUE INDEX `account_UNIQUE` (`account` ASC) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
