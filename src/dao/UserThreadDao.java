@@ -7,8 +7,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import beans.UserThread;
@@ -106,6 +109,8 @@ public class UserThreadDao {
 				String text = rs.getString("text");
 				Timestamp insertDate = rs.getTimestamp("insert_date");
 				int freeze = rs.getInt("freeze");
+				String differenceTime = calculateTime(insertDate);
+
 
 				UserThread message = new UserThread();
 				message.setAccount(account);
@@ -117,6 +122,7 @@ public class UserThreadDao {
 				message.setText(text);
 				message.setInsertDate(insertDate);
 				message.setFreeze(freeze);
+				message.setDifferenceTime(differenceTime);
 
 				ret.add(message);
 			}
@@ -124,6 +130,63 @@ public class UserThreadDao {
 		}finally{
 			close(rs);
 		}
+	}
+
+	private String calculateTime(Timestamp insertDate){
+
+		Date now = new Date();
+		Date nowTime = null;
+		Date insert = null;
+		long day = 0;
+		String differenceTime = null;
+		try{
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			nowTime = sdf.parse(sdf.format(now));
+			insert = sdf.parse(sdf.format(insertDate));
+			long dateNowTime = nowTime.getTime();
+			long dateInsertDate = insertDate.getTime();
+
+			sdf = new SimpleDateFormat("yyyy-MM-dd");
+			Date checkNowTime = sdf.parse(sdf.format(now));
+			Date checkInsertDate = sdf.parse(sdf.format(insert));
+			if(checkInsertDate.equals(checkNowTime)){
+				sdf = new SimpleDateFormat("yyyy-MM-dd HH");
+				checkNowTime = sdf.parse(sdf.format(now));
+				checkInsertDate = sdf.parse(sdf.format(insert));
+				if(checkInsertDate.equals(checkNowTime)){
+					sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+					checkNowTime = sdf.parse(sdf.format(now));
+					checkInsertDate = sdf.parse(sdf.format(insert));
+					if(checkInsertDate.equals(checkNowTime)){
+						sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+						checkNowTime = sdf.parse(sdf.format(now));
+						checkInsertDate = sdf.parse(sdf.format(insert));
+						dateNowTime = checkNowTime.getTime();
+						dateInsertDate = checkInsertDate.getTime();
+						day = (dateNowTime - dateInsertDate)/(1000);
+						differenceTime = day +"秒前";
+					}else{
+						dateNowTime = checkNowTime.getTime();
+						dateInsertDate = checkInsertDate.getTime();
+						day = (dateNowTime - dateInsertDate)/(1000*60);
+						differenceTime = day +"分前";
+					}
+				}else{
+					dateNowTime = checkNowTime.getTime();
+					dateInsertDate = checkInsertDate.getTime();
+					day = (dateNowTime - dateInsertDate)/(1000*60*60);
+					differenceTime = day +"時間前";
+				}
+			}else{
+				dateNowTime = checkNowTime.getTime();
+				dateInsertDate = checkInsertDate.getTime();
+				day = (dateNowTime - dateInsertDate)/(1000*60*60*24);
+				differenceTime = day +"日前";
+			}
+		}catch(ParseException e){
+			e.printStackTrace();
+		}
+		return differenceTime;
 	}
 
 }

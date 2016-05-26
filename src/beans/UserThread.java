@@ -15,6 +15,7 @@ public class UserThread implements Serializable {
 	private String text;
 	private Date insertDate;
 	private int freeze;
+	private String differenceTime;
 
 	public String getAccount() {
 		return account;
@@ -86,6 +87,14 @@ public class UserThread implements Serializable {
 
 	public void setFreeze(int freeze) {
 		this.freeze = freeze;
+	}
+
+	public String getDifferenceTime() {
+		return differenceTime;
+	}
+
+	public void setDifferenceTime(String differenceTime) {
+		this.differenceTime = differenceTime;
 	}
 
 }

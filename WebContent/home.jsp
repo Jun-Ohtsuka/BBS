@@ -24,7 +24,19 @@
 </div><!-- header -->
 
 <div class = "main-content">
-<h1>ホーム画面</h1>
+
+<!-- ログインしたら表示するユーザー情報 -->
+<c:if test = "${not empty loginUser }">
+<div class = "profile">
+ログイン中：
+	<div class = "name"><h2><c:out value = "${loginUser.name }" /></h2></div>
+	<!-- <div class = "account">@<c:out value = "${loginUser.account }" /></div> -->
+</div>
+</c:if>
+
+
+
+<h1>投稿一覧</h1>
 <c:if test ="${not empty errorMessages }">
 	<div class = "errorMessages">
 		<ul>
@@ -34,15 +46,6 @@
 		</ul>
 	</div>
 	<c:remove var="errorMessages" scope = "session" />
-</c:if>
-
-<!-- ログインしたら表示するユーザー情報 -->
-<c:if test = "${not empty loginUser }">
-<div class = "profile">
-ログイン中：
-	<div class = "name"><h2><c:out value = "${loginUser.name }" /></h2></div>
-	<!-- <div class = "account">@<c:out value = "${loginUser.account }" /></div> -->
-</div>
 </c:if>
 
 <!-- カテゴリー検索 -->
@@ -110,7 +113,7 @@
 			<th class = "thread">
 			ID：<span class = "account"><c:out value = "${message.account }" /></span>　
 			Name：<span class = "name"><c:out value = "${message.name }" /></span>　
-			投稿日時：<span class = "date"><fmt:formatDate value="${message.insertDate }" pattern = "yyy/MM/dd HH:mm:ss" /></span>
+			投稿日時：<span class = "date"><c:out value="${message.differenceTime }" /></span>
 			　<input class = "delete-button" type = "submit" name = "submit" value = "この投稿を削除する"
 			 onclick = 'return confirm("本当に削除してよろしいですか？");'/>
 			</th>
