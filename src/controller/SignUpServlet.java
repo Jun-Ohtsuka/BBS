@@ -18,10 +18,10 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
 
 import beans.User;
-import dao.BranchDao;
-import dao.PositionDao;
 import dao.UserDao;
 import exception.NoRowsUpdatedRuntimeException;
+import service.BranchService;
+import service.PositionService;
 import service.UserService;
 
 @WebServlet(urlPatterns = {"/signup"})
@@ -31,10 +31,10 @@ public class SignUpServlet extends HttpServlet{
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 
-		PositionDao getPosition = new PositionDao();
+		PositionService getPosition = new PositionService();
 		List<String> positions = getPosition.getPosition();
 
-		BranchDao getBranch = new BranchDao();
+		BranchService getBranch = new BranchService();
 		List<String> branchs = getBranch.getBranch();
 
 		HttpSession session = request.getSession();
@@ -56,15 +56,20 @@ public class SignUpServlet extends HttpServlet{
 		if(isValid(request, messages) == true){
 			try{
 				new UserService().register(editUser);
+				String name = editUser.getName();
+				messages.add(name + "の登録が完了しました");
+
+				session.removeAttribute("editUser");
+				session.setAttribute("messages", messages);
 				response.sendRedirect("userManagement");
 			}catch (NoRowsUpdatedRuntimeException e){
 				session.removeAttribute("editUser");
 				messages.add("他の人によって更新されています。最新のデータを表示しましたデータを確認してください。");
-				session.setAttribute("errorMessages", messages);
+				session.setAttribute("messages", messages);
 				session.removeAttribute("signup");
 			}
 		}else{
-			session.setAttribute("errorMessages", messages);
+			session.setAttribute("messages", messages);
 			response.sendRedirect("signup");
 		}
 	}

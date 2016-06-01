@@ -17,15 +17,15 @@
 <div class = "main-content">
 <h1>ユーザー登録</h1>
 
-<c:if test ="${not empty errorMessages }">
+<c:if test ="${not empty messages }">
 	<div class = "errorMessages">
 		<ul>
-			<c:forEach items = "${errorMessages }" var = "message">
+			<c:forEach items = "${messages }" var = "message">
 				<li><c:out value = "${message }" /></li>
 			</c:forEach>
 		</ul>
 	</div>
-	<c:remove var="errorMessages" scope = "session" />
+	<c:remove var="messages" scope = "session" />
 </c:if>
 <div id = "signup-form">
 <form action = "signup" method = "post" enctype = "multepart/form-date"><br>
@@ -33,7 +33,7 @@
 	<input name = "name" value = "${editUser.name }" id = "name" /><br>
 
 	<label class = "form" for = "account">ログインID：</label>
-	<input name = "account" value = "${editUser.account }"  id = "account" /><br>
+	<input name = "account" value = "${editUser.account}"  id = "account" /><br>
 
 	<label class = "form" for = "password">パスワード：</label>
 	<input name = "password" type = "password" id = "password" /><br>
@@ -43,7 +43,9 @@
 	<label class = "form" for = "branch">所属している支店：</label>
 	<select name = "branch" id = "branch" >
 		<c:forEach items = "${branchs }" var="branch" varStatus = "status">
-			<option <c:if test= "${editUser.branchId == status.count }" >selected</c:if> value = <c:out value = "${status.count }" />><c:out value = "${branch }" /></option>
+			<option <c:if test= "${editUser.branchId == status.count }" >selected</c:if> value = <c:out value = "${status.count }" />>
+				<c:out value = "${branch }" />
+			</option>
 		</c:forEach>
 	</select><br>
 
@@ -54,7 +56,7 @@
 			</c:forEach>
 		</select><br>
 
-	<input type = "submit" value = "登録" /><br>
+	<input class = "submit" type = "submit" value = "登録" /><br>
 </form>
 </div>
 

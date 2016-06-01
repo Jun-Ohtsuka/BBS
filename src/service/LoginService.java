@@ -39,7 +39,7 @@ public class LoginService {
 		}
 	}
 
-	public User changeUserLogin(String account){
+	public User changeUserLogin(int id){
 
 		Connection connection = null;
 
@@ -47,7 +47,7 @@ public class LoginService {
 			connection = getConnection();
 
 			UserDao userDao = new UserDao();
-			User user = userDao.getChangeUser(connection, account);
+			User user = userDao.getChangeUser(connection, id);
 
 			commit(connection);
 			return user;

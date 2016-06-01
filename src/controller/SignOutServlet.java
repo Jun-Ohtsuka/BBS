@@ -9,8 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-@WebServlet(urlPatterns = {"/logout"})
-public class LogoutServlet extends HttpServlet{
+@WebServlet(urlPatterns = {"/signout"})
+public class SignOutServlet extends HttpServlet{
 	private static final long serialVersionUD = 1L;
 
 	@Override
@@ -20,6 +20,6 @@ public class LogoutServlet extends HttpServlet{
 
 		session.invalidate();
 
-		response.sendRedirect("./");
+		response.sendRedirect("signin");
 	}
 }

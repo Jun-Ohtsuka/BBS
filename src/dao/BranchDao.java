@@ -10,7 +10,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import beans.Branch;
 import exception.SQLRuntimeException;
 
 public class BranchDao {
@@ -20,7 +19,7 @@ public class BranchDao {
 		PreparedStatement ps = null;
 		try{
 			connection = getConnection();
-			String sql = "SELECT * FROM `bbs`.`branchs`";
+			String sql = "SELECT * FROM `branchs`";
 
 			ps = connection.prepareStatement(sql);
 
@@ -36,25 +35,5 @@ public class BranchDao {
 		}finally{
 			close(ps);
 		}
-
 	}
-
-	private List<Branch> toBranchList(ResultSet rs) throws SQLException {
-
-		List<Branch> ret = new ArrayList<>();
-		try{
-			while (rs.next()){
-				String name = rs.getString("name");
-
-				Branch branch = new Branch();
-				branch.setName(name);
-
-				ret.add(branch);
-			}
-			return ret;
-		}finally{
-			close(rs);
-		}
-	}
-
 }

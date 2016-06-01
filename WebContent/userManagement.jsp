@@ -19,34 +19,45 @@
 <div class = "main-content">
 
 <h1>ユーザー一覧</h1>
+<c:if test ="${not empty messages }">
+	<div class = "errorMessages">
+	<ul>
+		<c:forEach items = "${messages }" var = "message">
+			<li><c:out value = "${message }" /></li>
+		</c:forEach>
+	</ul>
+	</div>
+	<c:remove var="messages" scope = "session" />
+</c:if>
 
 <!-- ユーザーの一覧表示 -->
 <div class = "users">
 	<table class = "userManagement" border="1" cellspacing="0">
 		<tr>
-			<th>ID</th>
-			<th>ログインID</th>
+			<th>サインインID</th>
 			<th>名前</th>
 			<th>所属</th>
 			<th>部署・役職</th>
 			<th>状態</th>
 			<th>状態編集</th>
-			<th>ユーザー情報編集</th>
+			<th>ユーザー編集</th>
 		</tr>
 		<c:forEach items = "${users }" var = "user">
 		<tr>
-			<form action = "freeze" method = "POST">
-			<input type='hidden' name = "id" value="${user.id}" />
-				<td><c:out value = "${user.id}" /></td>
 				<td><c:out value = "${user.account }" /></td>
 				<td><c:out value = "${user.name }" /></td>
 				<td><c:out value = "${user.branchName }" /></td>
 				<td><c:out value = "${user.positionName }" /></td>
+
+			<form action = "userManagement" method = "POST">
+			<input type='hidden' name = "id" value="${user.id}" />
 			<c:choose>
 			<c:when test = "${user.freeze == 0 }">
 				<td class = "freeze">利用可能</td>
-				<td class = "td_submit"><input id = "submit_button" type = "submit" name = "submit" value = "停止"
-				onclick = 'return confirm("[${user.account}：${user.name}]を停止します。\nよろしいですか？");' /></td>
+				<td class = "td_submit"><c:if test = "${user.id != loginUser.id }">
+					<input id = "submit_button" type = "submit" name = "submit" value = "停止"
+						onclick = 'return confirm("[${user.account}：${user.name}]を停止します。\nよろしいですか？");' />
+				</c:if></td>
 			</c:when>
 			<c:when test = "${user.freeze == 1 }">
 				<td class = "freeze"><div class = "stop">停止中</td>
@@ -54,7 +65,10 @@
 				onclick = 'return confirm("[${user.account}：${user.name}]の停止を解除します。\nよろしいですか？");' /></td>
 			</c:when>
 			</c:choose>
-				<td><a href = "setting?id=${user.id}">編集画面へ</a></td>
+			</form>
+			<form action = "setting" method = "GET">
+			<input type = "hidden" name = "id" value="${user.id}" />
+				<td><input class = "td_submit" id = "submit_button" type = "submit" value = "編集する" /></td>
 			</form>
 		</tr>
 		</c:forEach>

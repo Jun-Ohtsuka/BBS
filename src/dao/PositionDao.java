@@ -10,7 +10,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import beans.Position;
 import exception.SQLRuntimeException;
 
 public class PositionDao {
@@ -20,7 +19,7 @@ public class PositionDao {
 		PreparedStatement ps = null;
 		try{
 			connection = getConnection();
-			String sql = "SELECT * FROM `bbs`.`positions`";
+			String sql = "SELECT * FROM `positions`";
 
 			ps = connection.prepareStatement(sql);
 
@@ -36,25 +35,5 @@ public class PositionDao {
 		}finally{
 			close(ps);
 		}
-
 	}
-
-	private List<Position> toPositionList(ResultSet rs) throws SQLException {
-
-		List<Position> ret = new ArrayList<>();
-		try{
-			while (rs.next()){
-				String name = rs.getString("name");
-
-				Position user = new Position();
-				user.setName(name);
-
-				ret.add(user);
-			}
-			return ret;
-		}finally{
-			close(rs);
-		}
-	}
-
 }

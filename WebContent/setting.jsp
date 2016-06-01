@@ -19,41 +19,41 @@
 
 <h1>ユーザー情報編集</h1>
 
-<c:if test ="${not empty errorMessages }">
+<c:if test ="${not empty messages }">
 	<div class = "errorMessages">
 		<ul>
-			<c:forEach items = "${errorMessages }" var = "message">
+			<c:forEach items = "${messages }" var = "message">
 				<li><c:out value = "${message }" /></li>
 			</c:forEach>
 		</ul>
 	</div>
-	<c:remove var="errorMessages" scope = "session" />
+	<c:remove var="messages" scope = "session" />
 </c:if>
 <div class = "setting">
 <form action = "setting" method = "post" enctype = "multepart/form-date"><br>
-	<input type = "hidden" name = "id" value = "${editUser.id }" />
+	<input type = "hidden" name = "id" value = "${editedUser.id }" />
 	<label for = "name">名前</label>
-	<input name = "name" value = "${editUser.name }" id = "name" /><br>
+	<input name = "name" value = "${editedUser.name }" id = "name" /><br>
 
 	<label for = "account">アカウント名</label>
-	<input name = "account" value = "${editUser.account }" /><br>
+	<input name = "account" value = "${editedUser.account }" /><br>
 
 	<label for = "password">パスワード</label>
-	<input name = "password" type = "password" id = "password" /><br>
+	<input name = "password" type = "password" id = "editPassword" /><br>
 	<label for = "checkPassword">パスワード確認用</label>
-	<input name = "checkPassword" type = "password" id = "checkPassword" /><br>
+	<input name = "checkPassword" type = "password" id = "editPassword" /><br>
 
 	<label for = "branch">所属している支店</label>
 	<select name = "branch" id = "branch" >
 		<c:forEach items = "${branchs }" var="branch" varStatus = "status">
-			<option <c:if test= "${editUser.branchId == status.count }" >selected</c:if> value = <c:out value = "${status.count }" />><c:out value = "${branch }" /></option>
+			<option <c:if test= "${editedUser.branchId == status.count }" >selected</c:if> value = <c:out value = "${status.count }" />><c:out value = "${branch }" /></option>
 		</c:forEach>
 	</select><br>
 
 	<label for = "position">部署・役職</label>
 		<select name = "position" id = "position" >
 			<c:forEach items = "${positions }" var="position" varStatus = "status">
-				<option <c:if test= "${editUser.positionId == status.count }" >selected</c:if> value = <c:out value = "${status.count }" />><c:out value = "${position }" /></option>
+				<option <c:if test= "${editedUser.positionId == status.count }" >selected</c:if> value = <c:out value = "${status.count }" />><c:out value = "${position }" /></option>
 			</c:forEach>
 		</select><br>
 

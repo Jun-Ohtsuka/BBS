@@ -6,7 +6,7 @@ import static utils.DBUtil.*;
 import java.sql.Connection;
 import java.util.List;
 
-import beans.Message;
+import beans.Thread;
 import beans.UserComment;
 import dao.CommentDao;
 import dao.UserCommentDao;
@@ -38,7 +38,7 @@ public class CommentService {
 		}
 	}
 
-	public void registerComment(Message message, int id){
+	public void registerComment(Thread thread, int id){
 
 		Connection connection = null;
 
@@ -46,7 +46,7 @@ public class CommentService {
 			connection = getConnection();
 
 			CommentDao commentDao = new CommentDao();
-			commentDao.insertNewComment(connection, message, id);
+			commentDao.insertNewComment(connection, thread, id);
 
 			commit(connection);
 		}catch (RuntimeException e){

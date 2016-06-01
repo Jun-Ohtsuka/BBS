@@ -8,13 +8,13 @@ public class UserThread implements Serializable {
 
 	private String account;
 	private String name;
-	private int userId;
+	private int user_id;
 	private int thread_id;
 	private String title;
 	private String category;
 	private String text;
 	private Date insertDate;
-	private int freeze;
+	private int user_branch_id;
 	private String differenceTime;
 
 	public String getAccount() {
@@ -33,8 +33,12 @@ public class UserThread implements Serializable {
 		this.name = name;
 	}
 
+	public void setUserId(int user_id) {
+		this.user_id = user_id;
+	}
+
 	public int getUserId() {
-		return userId;
+		return user_id;
 	}
 
 	public void setThreadId(int thread_id) {
@@ -43,10 +47,6 @@ public class UserThread implements Serializable {
 
 	public int getThreadId() {
 		return thread_id;
-	}
-
-	public void setUserId(int userId) {
-		this.userId = userId;
 	}
 
 	public String getTitle() {
@@ -81,12 +81,12 @@ public class UserThread implements Serializable {
 		this.insertDate = insertDate;
 	}
 
-	public int getFreeze() {
-		return freeze;
+	public int getUserBranchId() {
+		return user_branch_id;
 	}
 
-	public void setFreeze(int freeze) {
-		this.freeze = freeze;
+	public void setUserBranchId(int user_branch_id) {
+		this.user_branch_id = user_branch_id;
 	}
 
 	public String getDifferenceTime() {

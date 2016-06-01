@@ -13,7 +13,6 @@ import javax.servlet.http.HttpSession;
 
 import beans.User;
 import beans.UserView;
-import service.LoginService;
 import service.UserService;
 
 @WebServlet(urlPatterns = {"/userManagement"})
@@ -23,42 +22,29 @@ public class UserManagementServlet extends HttpServlet{
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 
-		User user = (User) request.getSession().getAttribute("loginUser");
-
-		String account = user.getAccount();
-		LoginService loginService = new LoginService();
-		User changeUser = loginService.changeUserLogin(account);
-		HttpSession session = request.getSession();
-		List<String> messages = new ArrayList<>();
-
-		if(session.getAttribute("loginUser") == null){
-			messages.add("ログインしてください。");
-			session.setAttribute("errorMessages", messages);
-			request.getRequestDispatcher("/login").forward(request, response);
-			return;
-		}
-
-		if(changeUser.getFreeze() == 1){
-			messages.add("アカウントは停止されています");
-			session.removeAttribute("loginUser");
-			session.setAttribute("errorMessages", messages);
-			request.getRequestDispatcher("/login").forward(request, response);
-			return;
-		}
-
-		int loginUserPosition = user.getPositionId();
-
-		if(loginUserPosition != 1){
-			messages.add("このアカウントは行われた操作の権限を所持していません");
-			session.setAttribute("errorMessages", messages);
-			response.sendRedirect("./");
-			return;
-		}
-
 		List<UserView> users = new UserService().getUserView();
 
 		request.setAttribute("users", users);
-
 		request.getRequestDispatcher("/userManagement.jsp").forward(request, response);
+	}
+
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+		int id = Integer.valueOf(request.getParameter("id"));
+		UserService getUser = new UserService();
+		User editUser = getUser.getEditedUser(id);
+		new UserService().updateFreeze(editUser,id);
+		List<String> messages = new ArrayList<>();
+		String submit = request.getParameter("submit");
+		String name = editUser.getName();
+		if(submit.equals("停止")){
+			messages.add(name + "を停止しました");
+		}else{
+			messages.add(name + "の停止を解除しました");
+		}
+
+		HttpSession session = request.getSession();
+		session.setAttribute("messages", messages);
+		response.sendRedirect("userManagement");
 	}
 }

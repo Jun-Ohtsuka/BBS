@@ -12,7 +12,8 @@ public class UserComment implements Serializable {
 	private int thread_id;
 	private String text;
 	private Date insertDate;
-	private int freeze;
+	private int user_branch_id;
+	private String differenceTime;
 
 	public String getName() {
 		return name;
@@ -62,12 +63,20 @@ public class UserComment implements Serializable {
 		this.insertDate = insertDate;
 	}
 
-	public int getFreeze() {
-		return freeze;
+	public int getUserBranchId() {
+		return user_branch_id;
 	}
 
-	public void setFreeze(int freeze) {
-		this.freeze = freeze;
+	public void setUserBranchId(int user_branch_id) {
+		this.user_branch_id = user_branch_id;
+	}
+
+	public String getDifferenceTime() {
+		return differenceTime;
+	}
+
+	public void setDifferenceTime(String differenceTime) {
+		this.differenceTime = differenceTime;
 	}
 
 }

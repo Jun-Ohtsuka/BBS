@@ -16,14 +16,13 @@ import org.apache.commons.lang.StringUtils;
 import beans.User;
 import service.LoginService;
 
-@WebServlet(urlPatterns = {"/login"})
-public class LoginServlet extends HttpServlet{
+@WebServlet(urlPatterns = {"/signin"})
+public class SignInServlet extends HttpServlet{
 	private static final long serialVersionUD = 1L;
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-
-		request.getRequestDispatcher("/login.jsp").forward(request, response);
+		request.getRequestDispatcher("/signin.jsp").forward(request, response);
 	}
 
 	@Override
@@ -37,32 +36,28 @@ public class LoginServlet extends HttpServlet{
 		session.setAttribute("editUser", editUser);
 
 		if(StringUtils.isEmpty(account)){
-			messages.add("ログインIDを入力してください。");
+			messages.add("ログインIDを入力してください");
 		}
 		if(StringUtils.isEmpty(password)){
-			messages.add("パスワードを入力してください。");
+			messages.add("パスワードを入力してください");
 		}
 
 		if(messages.size() <= 0){
 			LoginService loginService = new LoginService();
 			User user = loginService.login(account, password);
 
-			if(user != null && user.getFreeze() == 1){
-				messages.add("入力されたアカウントは停止されています");
-				user = null;
-			}
 			if(user != null){
 				session.setAttribute("loginUser", user);
 				response.sendRedirect("./");
 				session.removeAttribute("editUser");
 			}else{
-				messages.add("ログインに失敗しました。");
-				session.setAttribute("errorMessages", messages);
-				response.sendRedirect("login");
+				messages.add("ログインに失敗しました");
+				session.setAttribute("messages", messages);
+				response.sendRedirect("signin");
 			}
 		}else{
-			session.setAttribute("errorMessages", messages);
-			response.sendRedirect("login");
+			session.setAttribute("messages", messages);
+			response.sendRedirect("signin");
 		}
 	}
 }

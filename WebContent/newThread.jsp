@@ -11,41 +11,46 @@
 </head>
 <body>
 <div id = "container">
-<div class = "main-content">
+
 <div class = "header">
+<div class = "ScreenTransition">
 	<a href = "./">戻る</a>
+</div>
 </div><!-- header -->
+
 <div class = "main-content">
+<div class = "newThread">
 <h1>新規投稿作成</h1>
 
-<c:if test ="${not empty errorMessages }">
+<c:if test ="${not empty messages }">
 	<div class = "errorMessages">
-		<ul>
-			<c:forEach items = "${errorMessages }" var = "message">
-				<li><c:out value = "${message }" /></li>
-			</c:forEach>
-		</ul>
+	<ul>
+		<c:forEach items = "${messages }" var = "message">
+			<li><c:out value = "${message }" /></li>
+		</c:forEach>
+	</ul>
 	</div>
-	<c:remove var="errorMessages" scope = "session" />
+	<c:remove var="messages" scope = "session" />
 </c:if>
 
-<form action = "newThread" method = "get">
+<label id = "categoryTitle">カテゴリー選択方式：</label>
+<form action = "newThread" method = "get" id = "changeCategory">
 <c:if test = "${inputCategory == 0 }" >
-	<input type = "submit" name = "submit" value = "自由入力" />
+	<input class = "submit" type = "submit" name = "submit" value = "自由入力" />
 </c:if>
 <c:if test = "${inputCategory == 1 }">
-	<input type = "submit" name = "submit" value = "一覧から選択" />
+	<input class = "submit" type = "submit" name = "submit" value = "一覧から選択" />
 </c:if>
 </form>
 
-<form action = "newThread" method = "post"><br>
+<form action = "newThread" method = "post" id = "newThread">
 <div class = "category">
 <c:if test = "${inputCategory == 0 }" >
 	<input type = "hidden" name = "inputCategory" value = "0" />
-	<label>カテゴリー一覧：</label>
+	<label>カテゴリー一覧 ：</label>
 	<select name = "category" id = "category" >
 		<c:forEach items = "${categorys }" var="category">
-			<option value = <c:out value = "${category }" /> <c:if test= "${message.category == category }" >selected</c:if>>
+			<option value = <c:out value = "${category }" /> <c:if test= "${editThread.category == category }" >selected</c:if>>
 				<c:out value = "${category }" />
 			</option>
 		</c:forEach>
@@ -53,18 +58,19 @@
 </c:if>
 <c:if test = "${inputCategory == 1 }">
 	<input type = "hidden" name = "inputCategory" value = "1" />
-	<label for = "category">カテゴリー自由入力 ：</label>
-	<input type = "text" name = "category" id = "category" /><br>
+	<label for = "category">カテゴリー自由入力 ：＜10文字以内で入力してください＞</label>
+	<input type="text" name="category" value = "${editThread.category }"/><br>
 </c:if>
 </div>
-	<label for = "title">件名 ：</label>
-	<input type = "text" name = "title" id = "title" /><br>
-	<label for = "text">本文 ：</label>
-	<textarea name = "text" cols = "100" rows = "5" class = "text-box"></textarea><br>
-
-	<input type = "submit" value = "投稿" /><br>
+<div id = "title-text">
+	<label for = "title">件名 ：＜50文字以内で入力してください＞</label>
+	<input id = "text-box" type="text" size = "50" name="title" value="${editThread.title }" /><br>
+	<label for = "text">本文 ：＜1000文字以内で入力して下さい＞</label>
+	<textarea id = "text-box" name="text" rows = "5" cols = "100" ><c:out value = "${editThread.text }" /></textarea><br>
+</div>
+	<input class = "submit" type = "submit" value = "投稿" /><br>
 </form>
-<br>
+</div>
 </div><!-- main -->
 <div id = "footer"><div class = "copyRight">Copyright(c) Ohtsuka Jun</div></div>
 </div>

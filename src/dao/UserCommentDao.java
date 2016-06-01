@@ -12,6 +12,7 @@ import java.util.List;
 
 import beans.UserComment;
 import exception.SQLRuntimeException;
+import utils.CalculateTimeUtil;
 
 public class UserCommentDao {
 
@@ -20,7 +21,7 @@ public class UserCommentDao {
 		PreparedStatement ps = null;
 		try{
 			StringBuilder sql = new StringBuilder();
-			sql.append("SELECT * FROM `bbs`.`comments_users` ORDER BY insert_date ;");
+			sql.append("SELECT * FROM `comments_users` ORDER BY insert_date ;");
 
 			ps = connection.prepareStatement(sql.toString());
 
@@ -46,7 +47,8 @@ public class UserCommentDao {
 				int threadId = rs.getInt("thread_id");
 				String text = rs.getString("text");
 				Timestamp insertDate = rs.getTimestamp("insert_date");
-				int freeze = rs.getInt("freeze");
+				int userBranchId = rs.getInt("user_branch_id");
+				String differenceTime = new CalculateTimeUtil().calculateTime(insertDate);
 
 				UserComment message = new UserComment();
 				message.setCommentId(id);
@@ -55,7 +57,8 @@ public class UserCommentDao {
 				message.setThreadId(threadId);
 				message.setText(text);
 				message.setInsertDate(insertDate);
-				message.setFreeze(freeze);
+				message.setUserBranchId(userBranchId);
+				message.setDifferenceTime(differenceTime);
 
 				ret.add(message);
 			}

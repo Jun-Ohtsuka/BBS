@@ -6,6 +6,8 @@ import static utils.DBUtil.*;
 import java.sql.Connection;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import beans.User;
 import beans.UserView;
 import dao.UserDao;
@@ -44,32 +46,13 @@ public class UserService {
 		try{
 			connection = getConnection();
 
-			String encPassword = CipherUtil.encrypt(user.getPassword());
-			user.setPassword(encPassword);
+			if(StringUtils.isEmpty(user.getPassword()) == false){
+				String encPassword = CipherUtil.encrypt(user.getPassword());
+				user.setPassword(encPassword);
+			}
 
 			UserDao userDao = new UserDao();
 			userDao.update(connection, user, id);
-
-			commit(connection);
-		}catch (RuntimeException e){
-			rollback(connection);
-			throw e;
-		}catch (Error e){
-			rollback(connection);
-			throw e;
-		}finally{
-			close(connection);
-		}
-	}
-
-	public void updateNonPassword(User user, int id){
-
-		Connection connection = null;
-		try{
-			connection = getConnection();
-
-			UserDao userDao = new UserDao();
-			userDao.updateNonPassword(connection, user,id);
 
 			commit(connection);
 		}catch (RuntimeException e){
@@ -157,9 +140,6 @@ public class UserService {
 		Connection connection = null;
 		try{
 			connection = getConnection();
-
-			String encPassword = CipherUtil.encrypt(user.getPassword());
-			user.setPassword(encPassword);
 
 			UserDao userDao = new UserDao();
 			userDao.updateFreeze(connection, user, id);

@@ -6,7 +6,7 @@ import static utils.DBUtil.*;
 import java.sql.Connection;
 import java.util.List;
 
-import beans.Message;
+import beans.Thread;
 import beans.UserThread;
 import dao.CommentDao;
 import dao.ThreadDao;
@@ -41,7 +41,53 @@ public class ThreadService {
 		}
 	}
 
-	public void register(Message message){
+	public String[] getThreadStartTime(){
+
+		Connection connection = null;
+		try{
+			connection = getConnection();
+
+			ThreadDao ThreadDao = new ThreadDao();
+			String[] ret = ThreadDao.getThreadStartTime();
+
+			commit(connection);
+
+			return ret;
+		}catch (RuntimeException e){
+			rollback(connection);
+			throw e;
+		}catch (Error e){
+			rollback(connection);
+			throw e;
+		}finally{
+			close(connection);
+		}
+	}
+
+	public String[] getThreadEndTime(){
+
+		Connection connection = null;
+		try{
+			connection = getConnection();
+
+			ThreadDao ThreadDao = new ThreadDao();
+			String[] ret = ThreadDao.getThreadEndTime();
+
+			commit(connection);
+
+			return ret;
+		}catch (RuntimeException e){
+			rollback(connection);
+			throw e;
+		}catch (Error e){
+			rollback(connection);
+			throw e;
+		}finally{
+			close(connection);
+		}
+	}
+
+	public void register(Thread thread){
 
 		Connection connection = null;
 
@@ -49,7 +95,7 @@ public class ThreadService {
 			connection = getConnection();
 
 			ThreadDao threadDao = new ThreadDao();
-			threadDao.insertNewThread(connection, message);
+			threadDao.insertNewThread(connection, thread);
 
 			commit(connection);
 		}catch (RuntimeException e){

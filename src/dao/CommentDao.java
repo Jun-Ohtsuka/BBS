@@ -6,17 +6,17 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import beans.Message;
+import beans.Thread;
 import exception.SQLRuntimeException;
 
 public class CommentDao {
 
-	public void insertNewComment(Connection connection, Message message, int id){
+	public void insertNewComment(Connection connection, Thread thread, int id){
 
 		PreparedStatement ps = null;
 		try{
 			StringBuilder sql = new StringBuilder();
-			sql.append("INSERT INTO `bbs`.`comments`( ");
+			sql.append("INSERT INTO `comments`( ");
 			sql.append(" thread_id");
 			sql.append(", text");
 			sql.append(", user_id");
@@ -33,8 +33,8 @@ public class CommentDao {
 			ps = connection.prepareStatement(sql.toString());
 
 			ps.setInt(1, id);
-			ps.setString(2, message.getText());
-			ps.setInt(3, message.getUserId());
+			ps.setString(2, thread.getText());
+			ps.setInt(3, thread.getUserId());
 
 			ps.executeUpdate();
 		}catch (SQLException e){
@@ -49,7 +49,7 @@ public class CommentDao {
 		PreparedStatement ps = null;
 		try{
 			StringBuilder sql = new StringBuilder();
-			sql.append("DELETE FROM `bbs`.`comments` WHERE `comments`.`id` = ? ;");
+			sql.append("DELETE FROM `comments` WHERE `comments`.`id` = ? ;");
 
 			ps = connection.prepareStatement(sql.toString());
 
@@ -68,7 +68,7 @@ public class CommentDao {
 		PreparedStatement ps = null;
 		try{
 			StringBuilder sql = new StringBuilder();
-			sql.append("DELETE FROM `bbs`.`comments` WHERE `comments`.`thread_id` = ? ;");
+			sql.append("DELETE FROM `comments` WHERE `comments`.`thread_id` = ? ;");
 
 			ps = connection.prepareStatement(sql.toString());
 

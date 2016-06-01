@@ -7,15 +7,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 
 import beans.UserThread;
 import exception.SQLRuntimeException;
+import utils.CalculateTimeUtil;
 
 public class UserThreadDao {
 
@@ -24,12 +23,12 @@ public class UserThreadDao {
 		PreparedStatement ps = null;
 		try{
 			StringBuilder sql = new StringBuilder();
-			sql.append("SELECT * FROM bbs.threads_users ORDER BY insert_date DESC ;");
+			sql.append("SELECT * FROM threads_users ORDER BY insert_date DESC ;");
 
 			ps = connection.prepareStatement(sql.toString());
 
 			ResultSet rs = ps.executeQuery();
-			List<UserThread> ret = toUserMessageList(rs);
+			List<UserThread> ret = toUserThreadList(rs);
 
 			return ret;
 		}catch (SQLException e){
@@ -44,49 +43,26 @@ public class UserThreadDao {
 
 		PreparedStatement ps = null;
 		try{
-
 			StringBuilder sql = new StringBuilder();
-			Calendar calendar = Calendar.getInstance();
 			String categorySQL = " category = category";
 
-			if(category != null && category.equals("") == false){
+			if(StringUtils.isEmpty(category) == false){
 				categorySQL = " category = '" + category + "'";
-			}
-
-			if(startYear == null || startYear.equals("")){
-				startYear = "2016";
-			}
-			if(startMonth == null || startMonth.equals("")){
-				startMonth = "1";
-			}
-			if(startDay == null || startDay.equals("")){
-				startDay = "1";
 			}
 
 			String startTimeSQL = "'" + startYear + "-" + startMonth + "-" + startDay + "'";
 
-			if(endYear == null || endYear.equals("")){
-				endYear = String.valueOf(calendar.get(Calendar.YEAR));
-			}
-			if(endMonth == null || endMonth.equals("")){
-				endMonth = String.valueOf(calendar.get(Calendar.MONTH) + 1);
-			}
-			if(endDay == null || endDay.equals("")){
-				endDay = String.valueOf(calendar.get(Calendar.DATE) +1);
-			}else{
-				int day = Integer.valueOf(endDay) + 1;
-				endDay = String.valueOf(day);
-			}
-
+			int day = Integer.valueOf(endDay) + 1;
+			endDay = String.valueOf(day);
 			String endTimeSQL = "'" + endYear + "-" + endMonth + "-" + endDay + "'";
 
-			sql.append("SELECT * FROM bbs.threads_users"
+			sql.append("SELECT * FROM threads_users"
 			+ " WHERE " + categorySQL + " AND insert_date > " + startTimeSQL + " AND insert_date < " + endTimeSQL
 					+" ORDER BY insert_date DESC ;");
 			ps = connection.prepareStatement(sql.toString());
 
 			ResultSet rs = ps.executeQuery();
-			List<UserThread> ret = toUserMessageList(rs);
+			List<UserThread> ret = toUserThreadList(rs);
 			return ret;
 		}catch (SQLException e){
 			throw new SQLRuntimeException(e);
@@ -95,7 +71,7 @@ public class UserThreadDao {
 		}
 	}
 
-	private List<UserThread> toUserMessageList(ResultSet rs) throws SQLException{
+	private List<UserThread> toUserThreadList(ResultSet rs) throws SQLException{
 
 		List<UserThread> ret = new ArrayList<>();
 		try{
@@ -108,85 +84,27 @@ public class UserThreadDao {
 				String category = rs.getString("category");
 				String text = rs.getString("text");
 				Timestamp insertDate = rs.getTimestamp("insert_date");
-				int freeze = rs.getInt("freeze");
-				String differenceTime = calculateTime(insertDate);
+				int userBranchId = rs.getInt("user_branch_id");
+				String differenceTime = new CalculateTimeUtil().calculateTime(insertDate);
 
 
-				UserThread message = new UserThread();
-				message.setAccount(account);
-				message.setName(name);
-				message.setThreadId(threadId);
-				message.setUserId(userId);
-				message.setTitle(title);
-				message.setCategory(category);
-				message.setText(text);
-				message.setInsertDate(insertDate);
-				message.setFreeze(freeze);
-				message.setDifferenceTime(differenceTime);
+				UserThread thread = new UserThread();
+				thread.setAccount(account);
+				thread.setName(name);
+				thread.setThreadId(threadId);
+				thread.setUserId(userId);
+				thread.setTitle(title);
+				thread.setCategory(category);
+				thread.setText(text);
+				thread.setInsertDate(insertDate);
+				thread.setUserBranchId(userBranchId);
+				thread.setDifferenceTime(differenceTime);
 
-				ret.add(message);
+				ret.add(thread);
 			}
 			return ret;
 		}finally{
 			close(rs);
 		}
 	}
-
-	private String calculateTime(Timestamp insertDate){
-
-		Date now = new Date();
-		Date nowTime = null;
-		Date insert = null;
-		long day = 0;
-		String differenceTime = null;
-		try{
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			nowTime = sdf.parse(sdf.format(now));
-			insert = sdf.parse(sdf.format(insertDate));
-			long dateNowTime = nowTime.getTime();
-			long dateInsertDate = insertDate.getTime();
-
-			sdf = new SimpleDateFormat("yyyy-MM-dd");
-			Date checkNowTime = sdf.parse(sdf.format(now));
-			Date checkInsertDate = sdf.parse(sdf.format(insert));
-			if(checkInsertDate.equals(checkNowTime)){
-				sdf = new SimpleDateFormat("yyyy-MM-dd HH");
-				checkNowTime = sdf.parse(sdf.format(now));
-				checkInsertDate = sdf.parse(sdf.format(insert));
-				if(checkInsertDate.equals(checkNowTime)){
-					sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-					checkNowTime = sdf.parse(sdf.format(now));
-					checkInsertDate = sdf.parse(sdf.format(insert));
-					if(checkInsertDate.equals(checkNowTime)){
-						sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-						checkNowTime = sdf.parse(sdf.format(now));
-						checkInsertDate = sdf.parse(sdf.format(insert));
-						dateNowTime = checkNowTime.getTime();
-						dateInsertDate = checkInsertDate.getTime();
-						day = (dateNowTime - dateInsertDate)/(1000);
-						differenceTime = day +"秒前";
-					}else{
-						dateNowTime = checkNowTime.getTime();
-						dateInsertDate = checkInsertDate.getTime();
-						day = (dateNowTime - dateInsertDate)/(1000*60);
-						differenceTime = day +"分前";
-					}
-				}else{
-					dateNowTime = checkNowTime.getTime();
-					dateInsertDate = checkInsertDate.getTime();
-					day = (dateNowTime - dateInsertDate)/(1000*60*60);
-					differenceTime = day +"時間前";
-				}
-			}else{
-				dateNowTime = checkNowTime.getTime();
-				dateInsertDate = checkInsertDate.getTime();
-				day = (dateNowTime - dateInsertDate)/(1000*60*60*24);
-				differenceTime = day +"日前";
-			}
-		}catch(ParseException e){
-			e.printStackTrace();
-		}
-		return differenceTime;
-	}
-
 }

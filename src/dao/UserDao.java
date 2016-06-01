@@ -10,6 +10,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import beans.User;
 import beans.UserView;
 import exception.NoRowsUpdatedRuntimeException;
@@ -21,7 +23,7 @@ public class UserDao {
 
 		PreparedStatement ps = null;
 		try{
-			String sql = "SELECT * FROM `bbs`.`users` WHERE account = ? AND password = ?";
+			String sql = "SELECT * FROM `users` WHERE account = ? AND password = ?";
 
 			ps = connection.prepareStatement(sql);
 
@@ -48,17 +50,15 @@ public class UserDao {
 
 		PreparedStatement ps = null;
 		try{
-			String sql = "SELECT account FROM `bbs`.`users` ;";
+			String sql = "SELECT * FROM `users` WHERE account = ?;";
 
 			ps = connection.prepareStatement(sql);
 
+			ps.setString(1, account);
+
 			ResultSet rs = ps.executeQuery();
-			List<String> stockList = new ArrayList<>();
-			while (rs.next()) {
-				String checkAccount = rs.getString("account");
-				stockList.add(checkAccount);
-			}
-			if(stockList.contains(account) == true){
+			List<User> userList = toUserList(rs);
+			if(userList.size() > 0){
 				return false;
 			}
 
@@ -74,22 +74,21 @@ public class UserDao {
 
 		PreparedStatement ps = null;
 		try{
-			String sql = "SELECT id,account FROM `bbs`.`users` ;";
+			String sql = "SELECT * FROM `users` WHERE account = ? ;";
 
 			ps = connection.prepareStatement(sql);
+			ps.setString(1, account);
 
 			ResultSet rs = ps.executeQuery();
-			List<String> stockList = new ArrayList<>();
-			while (rs.next()) {
-				String checkAccount = rs.getString("account");
-				int checkId = rs.getInt("id");
-				if(checkId != id){
-					stockList.add(checkAccount);
-				}
-			}
+			List<User> userList = toUserList(rs);
+			if(userList.isEmpty() == false){
+				User user = userList.get(0);
 
-			if(stockList.contains(account) == true){
-				return false;
+				if(user.getId() != id){
+					return false;
+				}
+			}else if(2 <= userList.size()){
+				throw new IllegalStateException("2 <= userList.size()");
 			}
 
 			return true;
@@ -170,7 +169,7 @@ public class UserDao {
 		try{
 			StringBuilder sql = new StringBuilder();
 
-			sql.append("INSERT INTO `bbs`.`users` ( ");
+			sql.append("INSERT INTO `users` ( ");
 			sql.append(" account");
 			sql.append(", password");
 			sql.append(", name");
@@ -203,56 +202,21 @@ public class UserDao {
 		}
 	}
 
-	public void update(Connection connection, User user, int id){
+	public void  update(Connection connection, User user, int id){
 
 		PreparedStatement ps = null;
+		String password = user.getPassword();
 		try{
 			StringBuilder sql = new StringBuilder();
-			sql.append("UPDATE `bbs`.`users` SET");
+			sql.append("UPDATE `users` SET");
 			sql.append(" `account` = ?");
 			sql.append(", `name` = ?");
-			sql.append(", `password` = ?");
 			sql.append(", `branch_id` = ?");
 			sql.append(", `position_id` = ?");
 			sql.append(", `update_date` = CURRENT_TIMESTAMP");
-			sql.append(" WHERE");
-			sql.append(" `id` = ?");
-			sql.append(" AND");
-			sql.append(" `update_date` = ? ;");
-
-			ps = connection.prepareStatement(sql.toString());
-
-			ps.setString(1, user.getAccount());
-			ps.setString(2, user.getName());
-			ps.setString(3, user.getPassword());
-			ps.setInt(4, user.getBranchId());
-			ps.setInt(5, user.getPositionId());
-			ps.setInt(6, id);
-			User userUpdateDate = getEditedUser(connection, id);
-			ps.setTimestamp(7, new Timestamp(userUpdateDate.getUpdateDate().getTime()));
-
-			int count = ps.executeUpdate();
-			if(count == 0){
-				throw new NoRowsUpdatedRuntimeException();
+			if(StringUtils.isEmpty(password) == false){
+				sql.append(", `password` = ?");
 			}
-		}catch (SQLException e){
-			throw new SQLRuntimeException(e);
-		}finally{
-			close(ps);
-		}
-	}
-
-	public void updateNonPassword(Connection connection, User user, int id){
-
-		PreparedStatement ps = null;
-		try{
-			StringBuilder sql = new StringBuilder();
-			sql.append("UPDATE `bbs`.`users` SET");
-			sql.append(" `account` = ?");
-			sql.append(", `name` = ?");
-			sql.append(", `branch_id` = ?");
-			sql.append(", `position_id` = ?");
-			sql.append(", `update_date` = CURRENT_TIMESTAMP");
 			sql.append(" WHERE");
 			sql.append(" `id` = ?");
 			sql.append(" AND");
@@ -264,9 +228,16 @@ public class UserDao {
 			ps.setString(2, user.getName());
 			ps.setInt(3, user.getBranchId());
 			ps.setInt(4, user.getPositionId());
-			ps.setInt(5, id);
-			User userUpdateDate = getEditedUser(connection, id);
-			ps.setTimestamp(6, new Timestamp(userUpdateDate.getUpdateDate().getTime()));
+			if(StringUtils.isEmpty(password) == false){
+				ps.setString(5, user.getPassword());
+				ps.setInt(6, id);
+				User userUpdateDate = getEditedUser(connection, id);
+				ps.setTimestamp(7, new Timestamp(userUpdateDate.getUpdateDate().getTime()));
+			}else{
+				ps.setInt(5, id);
+				User userUpdateDate = getEditedUser(connection, id);
+				ps.setTimestamp(6, new Timestamp(userUpdateDate.getUpdateDate().getTime()));
+			}
 
 			int count = ps.executeUpdate();
 			if(count == 0){
@@ -284,7 +255,7 @@ public class UserDao {
 		PreparedStatement ps = null;
 		try{
 			StringBuilder sql = new StringBuilder();
-			sql.append("UPDATE `bbs`.`users` SET");
+			sql.append("UPDATE `users` SET");
 			sql.append(" `freeze` = ?");
 			sql.append(", `update_date` = CURRENT_TIMESTAMP");
 			sql.append(" WHERE");
@@ -319,7 +290,7 @@ public class UserDao {
 
 		PreparedStatement ps = null;
 		try{
-			String sql = "SELECT * FROM `bbs`.`users` WHERE id = ?";
+			String sql = "SELECT * FROM `users` WHERE id = ? ;";
 
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1,  id);
@@ -344,7 +315,7 @@ public class UserDao {
 
 		PreparedStatement ps = null;
 		try{
-			String sql = "SELECT * FROM `bbs`.`users` ;";
+			String sql = "SELECT * FROM `users` ;";
 
 			ps = connection.prepareStatement(sql);
 
@@ -366,7 +337,7 @@ public class UserDao {
 
 		PreparedStatement ps = null;
 		try{
-			String sql = "SELECT * FROM `bbs`.`user_view` ;";
+			String sql = "SELECT * FROM `user_view` ;";
 
 			ps = connection.prepareStatement(sql);
 
@@ -384,14 +355,14 @@ public class UserDao {
 		}
 	}
 
-	public User getChangeUser(Connection connection, String account){
+	public User getChangeUser(Connection connection, int id){
 
 		PreparedStatement ps = null;
 		try{
-			String sql = "SELECT * FROM `bbs`.`users` WHERE account = ?";
+			String sql = "SELECT * FROM `users` WHERE id = ?";
 
 			ps = connection.prepareStatement(sql);
-			ps.setString(1, account);
+			ps.setInt(1, id);
 
 			ResultSet rs = ps.executeQuery();
 			List<User> userList = toUserList(rs);

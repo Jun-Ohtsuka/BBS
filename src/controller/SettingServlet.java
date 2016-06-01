@@ -17,10 +17,9 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
 
 import beans.User;
-import dao.BranchDao;
-import dao.PositionDao;
 import dao.UserDao;
-import exception.NoRowsUpdatedRuntimeException;
+import service.BranchService;
+import service.PositionService;
 import service.UserService;
 
 @WebServlet(urlPatterns = {"/setting"})
@@ -29,28 +28,49 @@ public class SettingServlet extends HttpServlet{
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-
 		HttpSession session = request.getSession();
 
 		int id = 0;
-		if(request.getParameter("id") != null){
-			id = Integer.valueOf(request.getParameter("id"));
+		List<String> messages = new ArrayList<>();
+
+		if(request.getParameter("id") == null && session.getAttribute("id") == null){
+			messages.add("無効な入力です");
+			session.setAttribute("messages", messages);
+			response.sendRedirect("userManagement");
+			return;
+		}else if(request.getParameter("id") != null){
+			if(request.getParameter("id").matches("^[0-9]{1,10}$")){
+				id = Integer.valueOf(request.getParameter("id"));
+			}else{
+				messages.add("無効なIDが入力されました");
+				session.setAttribute("messages", messages);
+				response.sendRedirect("userManagement");
+				return;
+			}
 		}else{
 			String sessionId = session.getAttribute("id").toString();
 			id = new Integer(sessionId).intValue();
 		}
 		User editedUser = getEditedUser(request, id);
 
-		PositionDao getPosition = new PositionDao();
+		if(editedUser == null){
+			messages.add("指定されたIDは存在しません");
+			session.setAttribute("messages", messages);
+			response.sendRedirect("userManagement");
+			return;
+		}
+
+		PositionService getPosition = new PositionService();
 		List<String> positions = getPosition.getPosition();
 
-		BranchDao getBranch = new BranchDao();
+		BranchService getBranch = new BranchService();
 		List<String> branchs = getBranch.getBranch();
 
-		session.setAttribute("editUser", editedUser);
+		session.setAttribute("editedUser", editedUser);
 		session.setAttribute("positions", positions);
 		session.setAttribute("branchs", branchs);
 		request.getRequestDispatcher("/setting.jsp").forward(request, response);
+		session.removeAttribute("editUser");
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
@@ -61,26 +81,14 @@ public class SettingServlet extends HttpServlet{
 		int id = Integer.valueOf(request.getParameter("id"));
 
 		if(isValid(request, messages, id) == true){
-			try{
-				String password = request.getParameter("password");
-				if(password.isEmpty() == false){
-					new UserService().update(editUser, id);
-				}else{
-					new UserService().updateNonPassword(editUser,id);
-				}
-			}catch (NoRowsUpdatedRuntimeException e){
-				session.removeAttribute("editUser");
-				messages.add("他の人によって更新されています。最新のデータを表示しましたデータを確認してください。");
-				session.setAttribute("errorMessages", messages);
-				session.removeAttribute("/setting.jsp");
-			}
-			session.setAttribute("editUser", editUser);
-			session.removeAttribute("editUser");
+			new UserService().update(editUser, id);
+			messages.add("ユーザー情報の編集が正常に完了しました");
 
+			session.setAttribute("messages", messages);
 			response.sendRedirect("userManagement");
 		}else{
 			session.setAttribute("editUser", editUser);
-			session.setAttribute("errorMessages", messages);
+			session.setAttribute("messages", messages);
 			session.setAttribute("id", id);
 			response.sendRedirect("setting");
 		}
@@ -88,7 +96,6 @@ public class SettingServlet extends HttpServlet{
 
 
 	private User getEditUser(HttpServletRequest request) throws IOException, ServletException{
-
 		User editUser = new User();
 
 		editUser.setName(request.getParameter("name"));
@@ -101,7 +108,6 @@ public class SettingServlet extends HttpServlet{
 	}
 
 	private User getEditedUser(HttpServletRequest request, int id) throws IOException, ServletException{
-
 		UserService getUser = new UserService();
 		User editedUser = getUser.getEditedUser(id);
 
@@ -109,6 +115,7 @@ public class SettingServlet extends HttpServlet{
 	}
 
 	private boolean isValid(HttpServletRequest request, List<String> messages, int id){
+
 		String name = request.getParameter("name");
 		String account = request.getParameter("account");
 		String password = request.getParameter("password");
